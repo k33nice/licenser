@@ -1,0 +1,7 @@
+memo = "4368a84c877fb4752452ba91aaadffeab050a12dac9f66e08b2196102e7903f5"
+
+[[projects]]
+  name = "github.com/julienschmidt/httprouter"
+  packages = ["."]
+  revision = "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
+  version = "v1.1"

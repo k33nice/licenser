@@ -1,0 +1,11 @@
+[Unit]
+Description=LicenserAPI
+
+[Service]
+EnvironmentFile=/etc/licenser-server/.env
+PIDFile=/tmp/licenser-server.pid
+User=root
+Group=root
+WorkingDirectory=/
+ExecStart=/bin/bash -c 'licenser-server'
+Restart=always
