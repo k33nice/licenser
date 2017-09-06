@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -110,8 +109,24 @@ func Params(q url.Values) (string, string, Years, string) {
 
 	project := q.Get("p")
 
-	return Default(name, Name).(string), Default(email, Email).(string),
-		Default(yearsList, Year).(Years), Default(project, Project).(string)
+	n, ok := Default(name, Name).(string)
+	if !ok {
+		n = name
+	}
+	e, ok := Default(email, Email).(string)
+	if !ok {
+		e = email
+	}
+	y, ok := Default(yearsList, Year).(Years)
+	if !ok {
+		y = Years{To: Year}
+	}
+	p, ok := Default(project, Project).(string)
+	if !ok {
+		p = project
+	}
+
+	return n, e, y, p
 }
 
 // Default - retrun default for false.
@@ -132,12 +147,12 @@ func Default(v interface{}, def interface{}) interface{} {
 			v = def
 		}
 	case []string:
-		if reflect.TypeOf(v).Kind() != reflect.Slice || v.([]string)[0] == "" {
+		years, ok := v.([]string)
+		if !ok || len(years) == 0 || years[0] == "" {
 			v = Years{To: def.(int)}
 			break
 		}
 		y := Years{}
-		years := v.([]string)
 		y.To, _ = strconv.Atoi(strings.Trim(years[0], " "))
 		if len(years) > 1 {
 			y.From, _ = strconv.Atoi(strings.Trim(years[0], " "))
