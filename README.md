@@ -70,4 +70,4 @@ Make get request with choosen license
 ### Examples ###
 
 - `curl -s http://localhost:33654/mit`
-- `curl -s http://localhost:33654/mit -d e=foo@bar.baz --data-urlencode="2000 - 2017"`
+- `curl -sG http://localhost:33654/mit -d e=foo@bar.baz --data-urlencode "y=2000 - 2017"`

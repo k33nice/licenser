@@ -1,4 +1,4 @@
-Copyright (c) {{.Year}} {{.Name}} <{{.Email}}>
+Copyright (c) {{if .Years.From}}{{.Years.From}} - {{end}}{{.Years.To}} {{.Name}} <{{.Email}}>
 
 The Universal Permissive License (UPL), Version 1.0
 

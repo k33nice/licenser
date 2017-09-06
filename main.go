@@ -7,8 +7,10 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
@@ -26,14 +28,18 @@ const (
 
 // Copyright - handle name and email.
 type Copyright struct {
-	Name  string
-	Email string
+	Name, Email string
+}
+
+// Years - handle copyright years.
+type Years struct {
+	From, To int
 }
 
 // Data - handle vars for licenes.
 type Data struct {
-	Year    int
 	Project string
+	Years
 	Copyright
 }
 
@@ -76,7 +82,7 @@ func License(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	n, e, y, p := Params(r.URL.Query())
 	copy := Copyright{n, e}
-	data := &Data{y, p, copy}
+	data := &Data{p, y, copy}
 
 	if err := t.Execute(w, data); err != nil {
 		Error(w)
@@ -91,11 +97,12 @@ func Error(w http.ResponseWriter) {
 }
 
 // Params - return query params if passed or defalts.
-func Params(q url.Values) (string, string, int, string) {
+func Params(q url.Values) (string, string, Years, string) {
 	date := time.Now()
 	Year, _, _ := date.Date()
 
-	year, _ := strconv.Atoi(q.Get("y"))
+	years := q.Get("y")
+	yearsList := strings.SplitN(years, "-", 2)
 
 	name := q.Get("n")
 
@@ -104,7 +111,7 @@ func Params(q url.Values) (string, string, int, string) {
 	project := q.Get("p")
 
 	return Default(name, Name).(string), Default(email, Email).(string),
-		Default(year, Year).(int), Default(project, Project).(string)
+		Default(yearsList, Year).(Years), Default(project, Project).(string)
 }
 
 // Default - retrun default for false.
@@ -124,6 +131,19 @@ func Default(v interface{}, def interface{}) interface{} {
 		if v == "" {
 			v = def
 		}
+	case []string:
+		if reflect.TypeOf(v).Kind() != reflect.Slice || v.([]string)[0] == "" {
+			v = Years{To: def.(int)}
+			break
+		}
+		y := Years{}
+		years := v.([]string)
+		y.To, _ = strconv.Atoi(strings.Trim(years[0], " "))
+		if len(years) > 1 {
+			y.From, _ = strconv.Atoi(strings.Trim(years[0], " "))
+			y.To, _ = strconv.Atoi(strings.Trim(years[1], " "))
+		}
+		v = y
 	}
 
 	return v
